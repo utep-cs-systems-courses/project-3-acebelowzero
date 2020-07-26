@@ -9,46 +9,37 @@
 #include "stateMachine.h"
 #include "led.h"
 
-void playSong()
-{
-  switch (state)
-  {
-  case 1:
-    buzzer_set_period(100);
-    state = 1;
-    break;
-  case 2:
-    buzzer_set_period(400);
-    state = 2;
-    break;
-  default:
-    break;
-  }
-}
-
 void stateAdvance()
 {
   switch (state)
   {
   case 1:
-    buzzer_set_period(100);
     drawJet();
+    drawString8x12(50, 70, "I DREW TEXT", COLOR_PURPLE);
+    clearScreen(COLOR_LIME_GREEN);
     redrawScreen = 1; // update the screen,
     state = 1;
-    soundEffect();
+    song_play();
     break;
   case 2:
     state = 0;
     break;
   case 3:
     clearScreen(COLOR_GREEN);
+    redrawScreen = 1;
     state = 0;
     break;
   case 4:
+    stopSong();
     clearScreen(COLOR_DARK_ORANGE);
     state = 4;
     break;
   }
+}
+
+void stopSong()
+{
+  buzzer_set_period(0);
 }
 
 /***/

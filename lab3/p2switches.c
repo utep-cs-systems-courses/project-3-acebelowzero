@@ -38,6 +38,7 @@ p2sw_read()
   return switches_current | (sw_changed << 8);
 }
 
+//checking for what buttons are pressed down
 void switch_interrupt_handler()
 {
   unsigned int switches = p2sw_read();

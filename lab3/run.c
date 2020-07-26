@@ -49,22 +49,22 @@ void main()
     }
     P1OUT |= GREEN_LED; /**< Green led on when CPU on */
     redrawScreen = 0;
-    //movLayerDraw(&ml0, &layer0);
-    fillRectangle(col, row, 20, 20, COLOR_ORANGE);
+    drawString8x12(0, 70, "Welcome to Lab", COLOR_RED);
+    drawString8x12(65, 75, "3", COLOR_RED);
+    randomDraw(50, 20, COLOR_BLACK);
+    drawRand(100, 150, COLOR_BLACK);
   }
 }
 
 void wdt_c_handler()
 {
+  u_int switches = p2sw_read();
   static short count = 0;
   P1OUT |= GREEN_LED; /**< Green LED on when cpu on */
   count++;
   if (count == 15)
   {
-    //moveShape();
-
     stateAdvance_(); // assembly function
-
     count = 0;
   }
   P1OUT &= ~GREEN_LED; /**< Green LED off when cpu off */

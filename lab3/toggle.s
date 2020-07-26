@@ -1,7 +1,5 @@
 	.arch msp430g2553
 
-	.p2align 2,0
-
 jt:				;jump table
 	.word default
 	.word case1
@@ -21,7 +19,7 @@ stateAdvance_:				;state
 
 case1:
 	call #drawJet
-	call #soundEffect
+	call #song_play
 	mov #1, &redrawScreen
 	mov #1, &state
 	jmp end
@@ -32,7 +30,6 @@ case2:
 	mov #0xf800, r14
 	mov #0x001f, r15
 	call #drawJet
-	call #soundEffect
 	mov #0, &redrawScreen
 	mov #0, &state
 	jmp end
@@ -43,11 +40,12 @@ case3:
 	mov #0x07ff, r14
 	mov #0x053f, r15
 	call #clearScreen
-	mov #1, &redrawScreen
+	mov #0, &redrawScreen
 	mov #0, &state
 	jmp end
 
-case4:	
+case4:
+	call #stopSong
 	mov #4, &state
 	jmp end
 

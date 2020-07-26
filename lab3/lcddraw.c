@@ -11,6 +11,22 @@
  *  \param row Row to draw to
  *  \param colorBGR Color of pixel in BGR
  */
+
+void randomDraw(char col, char row, u_int colorBGR)
+{
+  for (int i = 0; i < row; i += 2)
+  {
+    drawPixel(col, row, COLOR_BLACK);
+    col *row / 2;
+    row++;
+    for (int j = 0; j < col; j += 2)
+    {
+      drawPixel(col, row, COLOR_BLACK);
+      col / 2;
+      row *col / 5;
+    }
+  }
+}
 void jet(char col, char row, u_int colorBGR)
 {
   int i;
@@ -269,4 +285,9 @@ void drawRectOutline(u_char colMin, u_char rowMin, u_char width, u_char height,
 void drawJet()
 {
   jet(40, 30, COLOR_WHITE);
+}
+
+void drawRand()
+{
+  randomDraw(10, 10, COLOR_BLACK);
 }
