@@ -7,17 +7,19 @@ LDFLAGS		= -L../lib -L/opt/ti/msp430_gcc/include/
 CC              = msp430-elf-gcc
 AS              = msp430-elf-gcc -mmcu=${CPU} -c
 
-all:shapemotion.elf
+all:run.elf
 
 #additional rules for files
-shapemotion.elf: ${COMMON_OBJECTS} font-11x16.o font-5x7.o font-8x12.o lcdutils.o lcddraw.o shapemotion.o wdt_handler.o
+run.elf: ${COMMON_OBJECTS} wdt_handler.o led.o buzzer.o stateMachine.o font-11x16.o font-5x7.o font-8x12.o lcdutils.o lcddraw.o run.o toggle.o p2switches.o
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd -lShape -lCircle -lp2sw
 
-load: shapemotion.elf
+load: run.elf
 	msp430loader.sh $^
 
 lcddraw.o: lcddraw.c lcddraw.h lcdutils.h
 lcdutils.o: lcdutils.c lcdutils.h
+
+stateMachine.o: stateMachine.c stateMachine.h
 
 clean:
 	rm -f *.o *.*~ *.elf

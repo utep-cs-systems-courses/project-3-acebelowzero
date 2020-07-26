@@ -5,8 +5,8 @@
 #ifndef lcddraw_included
 #define lcddraw_included
 
-void drawPlane();
-void plane(char col, char row, u_int colorBGR);
+void drawJet();
+void jet(char col, char row, u_int colorBGR);
 /** Draw single pixel at col, row 
  *
  *  \param col Column to draw to
