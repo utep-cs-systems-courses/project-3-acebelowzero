@@ -20,6 +20,13 @@ u_int bgColor = COLOR_BLUE;     /**< The background color */
 int redrawScreen = 1;           /**< Boolean for whether screen needs to be redrawn */
 
 Region fieldFence;		/**< fence around playing field  */
+char color = COLOR_BLACK;
+int firstLine = 1;
+int secondLine = 0;
+int thirdLine = 0;
+int fourthLine = 0;
+int col = 10;
+int row = 90;
 
 
 /** Initializes everything, enables interrupts and green LED, 
@@ -37,11 +44,11 @@ void main()
 
   shapeInit();
 
-  layerInit(&layer0);
-  layerDraw(&layer0);
+  //layerInit(&layer0);
+  //layerDraw(&layer0);
 
 
-  layerGetBounds(&fieldLayer, &fieldFence);
+  //layerGetBounds(&fieldLayer, &fieldFence);
 
 
   enableWDTInterrupts();      /**< enable periodic interrupt */
@@ -55,20 +62,80 @@ void main()
     }
     P1OUT |= GREEN_LED;       /**< Green led on when CPU on */
     redrawScreen = 0;
-    movLayerDraw(&ml0, &layer0);
+    fillRectangle(col,10, 50, 50, COLOR_ORANGE);
+    //movLayerDraw(&ml0, &layer0);
   }
 }
 
 /** Watchdog timer interrupt handler. 15 interrupts/sec */
 void wdt_c_handler()
 {
+    u_int switches = p2sw_read(), i;
+    char str[5];
+    for (i = 0; i < 4; i++){
+      str[i] = (switches & (1<<i)) ? '-' : '0'+i;
+    }
   static short count = 0;
   P1OUT |= GREEN_LED;		      /**< Green LED on when cpu on */
   count ++;
   if (count == 15) {
-    mlAdvance(&ml0, &fieldFence);
-    if (p2sw_read())
-      redrawScreen = 1;
+  
+    if(firstLine == 1){
+      row--;
+      if(row == 30){
+	firstLine =0;
+	secondLine = 1;
+	}      
+     }
+    if(secondLine == 1){
+	col++;
+	row++;
+	if(col==50){	
+	  secondLine =0;
+	  thirdLine =3;
+      }
+    }
+    if(thirdLine == 3){
+	col++;
+	row--;
+	if(col==90){	
+	  thirdLine =0;
+	  fourthLine = 4;
+      }
+    }
+    if(fourthLine == 4){	
+	row++;
+	if(row==90){	
+	  fourthLine = 0;
+	  //clearScreen(COLOR_BLUE);
+	
+	  col = 10;
+	  row = 90;
+	  firstLine = 1; // to keep drawing it over and over again
+       }
+    }
+  
+    //mlAdvance(&ml0, &fieldFence);
+    if(str[0]=='0'){
+     //clear screen and redraw the figure with a diferent position, same problem than above
+      //clearScreen(COLOR_BLUE);
+      redrawScreen = 1; //not update the screen,
+    }
+    if(str[1]=='1'){
+
+     clearScreen(COLOR_BLUE);
+     fillRectangle(20,20, 50, 50, bgColor); // another figure
+
+     // fillRectangle(20,20, 50, 50, bgColor); // another figure
+     
+     drawPlane();
+    }
+    if(str[2]=='2'){
+      //bgColor = COLOR_WHITE;
+     clearScreen(COLOR_RED);
+     fillRectangle(20,20, 50, 50, COLOR_WHITE);
+    }
+    //clear screen and write something to the screen
     count = 0;
   } 
   P1OUT &= ~GREEN_LED;		    /**< Green LED off when cpu off */
