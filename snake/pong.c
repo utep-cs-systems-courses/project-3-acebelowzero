@@ -67,7 +67,7 @@ Layer layer0 = {		/**< ball */
   (AbShape *)&circle14,
   {(screenWidth/2), (screenHeight/2)}, /**< bit below & right of center */
   {0,0}, {0,0},				    /* last & next pos */
-  COLOR_ORANGE,
+  COLOR_WHITE,
   &layer1,
 };
 
@@ -133,8 +133,8 @@ Region fence = {{0,LONG_EDGE_PIXELS}, {SHORT_EDGE_PIXELS, LONG_EDGE_PIXELS}}; /*
 /** Advances a moving shape within a fence
  *  
  *  \param ml0 The moving ball
- *  \param ml1 The moving paddle player 2
- *  \param ml2 The moving paddle player 1
+ *  \param ml1 The moving paddle player 1
+ *  \param ml2 The moving paddle player 2
  *  \param fence The region which will serve as a boundary for ml0
  */
 void mlAdvance(MovLayer *ml, MovLayer *ml1, MovLayer *ml2, Region *fence)
@@ -165,21 +165,24 @@ void mlAdvance(MovLayer *ml, MovLayer *ml1, MovLayer *ml2, Region *fence)
       }	/**< if outside of fence */
 
       //checks if ball hits or player one
-      if((rowH >= 135) && (colH <= ml2->layer->posNext.axes[0] + 15 && colH >= ml2->layer->posNext.axes[0] - 15)){
+      if((rowH >= 135) && (colH == ml2->layer->posNext.axes[0] + 15 && colH == ml2->layer->posNext.axes[0] - 15)){
         //int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
-        ml->layer->color = COLOR_BLACK;
+        //ml->layer->color = COLOR_BLACK;
         int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
         ml->velocity.axes[0] += 1;
         newPos.axes[axis] += (2 * velocity);
+        buzzer_set_period(1000);
         int redrawScreen = 1;
         
+        
       }//check if ball hits player 2
-      else if((rowH <= 21) && (colH <= ml1->layer->posNext.axes[0] + 15 && colH >= ml1->layer->posNext.axes[0] - 15)){
+      else if((rowH <= 21) && (colH == ml1->layer->posNext.axes[0] + 15 && colH == ml1->layer->posNext.axes[0] - 15)){
         //int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
-        ml->layer->color = COLOR_RED;
+        //ml->layer->color = COLOR_RED;
         int velocity = ml->velocity.axes[axis] = ml->velocity.axes[axis];
         ml->velocity.axes[0] += 1;
         newPos.axes[axis] += (2 * velocity);
+        buzzer_set_period(1000);
         int redrawScreen = 1;
         
       }
@@ -187,7 +190,7 @@ void mlAdvance(MovLayer *ml, MovLayer *ml1, MovLayer *ml2, Region *fence)
       else if((rowH == 20)){
         //int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
         ml2->layer->color = COLOR_RED;
-        score2++; // change char 0 to char 1;
+        //score2++; // change char 0 to char 1;
 	      drawChar5x7((screenWidth/2)/2, (screenHeight/2)/+15, score2, COLOR_YELLOW, COLOR_BLACK);
         goal = 1;
 	      newPos.axes[0] = screenWidth/2;
@@ -200,9 +203,9 @@ void mlAdvance(MovLayer *ml, MovLayer *ml1, MovLayer *ml2, Region *fence)
       //check if ball hits lower region
       else if((rowH == 136)){
         //int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
-        ml1->layer->color = COLOR_RED;
+        //ml1->layer->color = COLOR_RED;
         score1++;
-	      drawChar5x7(screenWidth/2,140, score1, COLOR_GREEN, COLOR_BLACK);	   
+	      drawChar5x7((screenWidth/2)/2,140, score1, COLOR_GREEN, COLOR_BLACK);	   
         goal = 1;
 	      newPos.axes[0] = screenWidth/2;
 	      newPos.axes[1] = (screenHeight/2);
@@ -223,7 +226,7 @@ void mlAdvance(MovLayer *ml, MovLayer *ml1, MovLayer *ml2, Region *fence)
 }
 
 
-u_int bgColor = COLOR_BLUE;     /**< The background color */
+u_int bgColor = COLOR_BLACK;     /**< The background color */
 int redrawScreen = 1;           /**< Boolean for whether screen needs to be redrawn */
 
 Region fieldFence;		/**< fence around playing field  */
@@ -241,7 +244,12 @@ void main()
   configureClocks();
   lcd_init();
   shapeInit();
-  p2sw_init(1);
+  buzzer_init();
+  p2sw_init(15);
+
+  if(goal == 1){
+    buzzer_set_period(0);
+  }
 
   shapeInit();
 
@@ -264,20 +272,50 @@ void main()
     P1OUT |= GREEN_LED;       /**< Green led on when CPU on */
     redrawScreen = 0;
     movLayerDraw(&ml0, &layer0);
+    movLayerDraw(&ml1, &layer0);
+    movLayerDraw(&ml2, &layer0);
   }
 }
 
 /** Watchdog timer interrupt handler. 15 interrupts/sec */
-void wdt_c_handler()
-{
-  static short count = 0;
-  P1OUT |= GREEN_LED;		      /**< Green LED on when cpu on */
-  count ++;
-  if (count == 15) {
-    mlAdvance(&ml0, &ml1, &ml2, &fieldFence);
-    if (p2sw_read())
+void wdt_c_handler() {
+    static short count = 0;
+    P1OUT |= GREEN_LED;              // Green LED on when cpu on
+    static long wait = 0;
+    count++;
+    u_int sw = p2sw_read();
+
+
+    if(count == 15){
+
+      mlAdvance(&ml0, &ml1, &ml2,  &fieldFence);
+      //moves player 1 left
+    if(!(sw & (1<<0))){
+      ml2.layer->posNext.axes[0] -= 5;
+      redrawScreen = 1; 
+      
+    }
+    //moves player 1 right
+    if(!(sw & (1<<1))){
+      ml2.layer->posNext.axes[0] += 5;
+      redrawScreen = 1; 
+      
+    }
+    //moves player 2 left
+    if(!(sw & (1<<2))){
+      ml1.layer->posNext.axes[0] -= 5;
+      redrawScreen = 1; 
+     
+    }
+    //moves player 2 right
+    if(!(sw & (1<<3))){
+      ml1.layer->posNext.axes[0] += 5;
       redrawScreen = 1;
+     
+    }
+    redrawScreen = 1;
     count = 0;
-  } 
-  P1OUT &= ~GREEN_LED;		    /**< Green LED off when cpu off */
+    }
+
+    P1OUT &= ~GREEN_LED;	
 }
