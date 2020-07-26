@@ -21,120 +21,8 @@
 #define RED_LED BIT0
 
 int redrawScreen = 1; /**< Boolean for whether screen needs to be redrawn */
-
-int col = 10;
-int row = 90;
-int stateNum = 0;
-
-/** Initializes everything, enables interrupts and green LED, 
- *  and handles the rendering for the screen
- */
-// void main()
-// {
-//   P1DIR |= GREEN_LED; /**< Green led on when CPU on */
-//   P1OUT |= GREEN_LED;
-
-//   configureClocks();
-//   lcd_init();
-//   shapeInit();
-//   p2sw_init(15);
-//   buzzer_init();
-//   led_init();
-//   shapeInit();
-//   clearScreen(COLOR_WHITE);
-
-//   enableWDTInterrupts(); /**< enable periodic interrupt */
-//   or_sr(0x8);            /**< GIE (enable interrupts) */
-
-//   for (;;)
-//   {
-//     while (!redrawScreen)
-//     {                      /**< Pause CPU if screen doesn't need updating */
-//       P1OUT &= ~GREEN_LED; /**< Green led off witHo CPU */
-//       or_sr(0x10);         /**< CPU OFF */
-//     }
-//     P1OUT |= GREEN_LED; /**< Green led on when CPU on */
-//     redrawScreen = 0;
-//     fillRectangle(col, 10, 50, 50, COLOR_ORANGE);
-//     //movLayerDraw(&ml0, &layer0);
-//   }
-// }
-
-// /** Watchdog timer interrupt handler. 15 interrupts/sec */
-// void wdt_c_handler()
-// {
-//   u_int switches = p2sw_read();
-//   static short count = 0;
-//   P1OUT |= GREEN_LED; /**< Green LED on when cpu on */
-//   count++;
-//   if (count == 15)
-//   {
-
-//     switch (stateNum)
-//     {
-//     case 0:
-//       row--;
-//       if (~switches & SW1)
-//       {
-//         stateNum = 1;
-//       }
-//       break;
-//       row++;
-//     case 1:
-//       col++;
-//       row++;
-//       if (col == 50)
-//       {
-//         stateNum = 1;
-//       }
-//       break;
-//     case 2:
-//       col++;
-//       row--;
-//       if (col == 90)
-//       {
-//         stateNum = 3;
-//       }
-//       break;
-//     case 3:
-//       row++;
-//       if (row == 90)
-//       {
-//         col = 10;
-//         row = 90;
-//         stateNum = 0;
-//       }
-//       break;
-//     }
-
-//     //handles what buttons are pressed
-//     if (~switches & SW1)
-//     {
-//       //clear screen and redraw the figure with a diferent position, same problem than above
-//       //clearScreen(COLOR_BLUE);
-//       buzzer_set_period(0);
-//       redrawScreen = 1; //not update the screen,
-//     }
-//     if (~switches & SW2)
-//     {
-//       buzzer_set_period(0);
-//       drawJet();
-//     }
-//     if (~switches & SW3)
-//     {
-//       buzzer_set_period(0);
-//       drawJet();
-//     }
-//     if (~switches & SW4)
-//     {
-//       // song_();
-//     }
-//     //clear screen and write something to the screen
-//     count = 0;
-//   }
-//   P1OUT &= ~GREEN_LED; /**< Green LED off when cpu off */
-// }
-
+int col = 90;
+int row = 10;
 void main()
 {
   P1DIR |= GREEN_LED; /**< Green led on when CPU on */
@@ -143,14 +31,11 @@ void main()
   configureClocks();
   lcd_init();
   shapeInit();
-  p2sw_init(1);
-
+  p2sw_init(15);
+  buzzer_init();
   shapeInit();
 
-  //layerInit(&layer0);
-  //layerDraw(&layer0);
-
-  //layerGetBounds(&fieldLayer, &fieldFence);
+  clearScreen(COLOR_WHITE);
 
   enableWDTInterrupts(); /**< enable periodic interrupt */
   or_sr(0x8);            /**< GIE (enable interrupts) */
@@ -165,6 +50,7 @@ void main()
     P1OUT |= GREEN_LED; /**< Green led on when CPU on */
     redrawScreen = 0;
     //movLayerDraw(&ml0, &layer0);
+    fillRectangle(col, row, 20, 20, COLOR_ORANGE);
   }
 }
 
@@ -175,9 +61,10 @@ void wdt_c_handler()
   count++;
   if (count == 15)
   {
-    //mlAdvance(&ml0, &fieldFence);
-    if (p2sw_read())
-      redrawScreen = 1;
+    //moveShape();
+
+    stateAdvance_(); // assembly function
+
     count = 0;
   }
   P1OUT &= ~GREEN_LED; /**< Green LED off when cpu off */

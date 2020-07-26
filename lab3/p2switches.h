@@ -7,9 +7,10 @@
 #define SW4 BIT3                       /* switch4 is p2.3 */
 #define SWITCHES SW1 | SW2 | SW3 | SW4 /* only 4 switches on this board */
 
-void switch_init();
-void switch_interrupt_handler();
+unsigned int p2sw_read();
+void p2sw_init(unsigned char mask);
 
-extern char sw1_state_down, sw2_state_down, sw3_state_down, sw4_state_down, state; /* effectively boolean */
-
+extern char sw1_state_down,
+    sw2_state_down, sw3_state_down, sw4_state_down, state; /* effectively boolean */
+extern int redrawScreen;
 #endif // included

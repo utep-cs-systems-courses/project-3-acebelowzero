@@ -3,7 +3,8 @@
 /** plays a song */
 
 char moveShape(int c, int r);
-extern int redrawScreen;
-extern char state;
+
 void stateAdvance();
+void playSong();
+
 #endif /* stateMachine_included */
