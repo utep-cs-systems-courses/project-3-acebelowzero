@@ -42,10 +42,10 @@ p2sw_read()
 void switch_interrupt_handler()
 {
   unsigned int switches = p2sw_read();
-  sw1_state_down = (~switches & SW1) ? 0 : 1; /* 0 when SW1 is up */
-  sw2_state_down = (~switches & SW2) ? 0 : 1; /* 0 when SW2 is up */
-  sw3_state_down = (~switches & SW3) ? 0 : 1; /* 0 when SW3 is up */
-  sw4_state_down = (~switches & SW4) ? 0 : 1; /* 0 when SW4 is up */
+  sw1_state_down = (~switches & SW1) ? 1 : 0; /* 0 when SW1 is up */
+  sw2_state_down = (~switches & SW2) ? 1 : 0; /* 0 when SW2 is up */
+  sw3_state_down = (~switches & SW3) ? 1 : 0; /* 0 when SW3 is up */
+  sw4_state_down = (~switches & SW4) ? 1 : 0; /* 0 when SW4 is up */
 
   if (sw1_state_down)
   {
